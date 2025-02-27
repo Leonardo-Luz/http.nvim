@@ -1,5 +1,11 @@
 local M = {}
 
+local state = {
+	print_curl = false,
+	print_response = false,
+	curl_max_time = 60,
+}
+
 ---Parse headers
 ---@param headers table
 ---@return string
@@ -39,7 +45,13 @@ M.fetch = function(url, opts)
 		body = opts.body and " --data '" .. vim.json.encode(opts.body, { escape_slash = true }) .. "'" or ""
 	end
 
-	local request = "curl -s --max-time 60 " .. url .. method .. headers .. body
+	local baseCurl = "curl -s --max-time " .. state.curl_max_time .. " "
+
+	if state.print_curl then
+		baseCurl = "curl --max-time " .. state.curl_max_time .. " "
+	end
+
+	local request = baseCurl .. url .. method .. headers .. body
 
 	local handle = io.popen(request)
 	if handle == nil then
@@ -67,9 +79,19 @@ M.fetch = function(url, opts)
 		return { err = "JSON decoding failed" }
 	end
 
+	if state.print_response then
+		vim.print(decoded_data)
+	end
+
 	return { response = decoded_data }
 end
 
-M.setup = function(opts) end
+---setup http plugin
+---@param opts { print_curl:boolean, print_response:boolean, curl_max_time: number }
+M.setup = function(opts)
+	state.print_curl = opts.print_curl
+	state.print_response = opts.print_response
+	state.curl_max_time = opts.curl_max_time and opts.curl_max_time or 60
+end
 
 return M
