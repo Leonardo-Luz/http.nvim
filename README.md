@@ -18,6 +18,11 @@ Add `leonardo-luz/http.nvim` to your Neovim plugin manager.  For example, in you
 ```lua
 {
   'leonardo-luz/http.nvim',
+  opts = {
+      print_curl = false,  -- Prints the curl request, (not recommended, can cause issues), default: false
+      print_response = false, -- Prints the raw response data, default: false
+      curl_max_time = 60,     -- Maximum time for the curl operation, default: 60 seconds
+  }
 }
 ```
 
