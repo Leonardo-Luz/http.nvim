@@ -1,7 +1,7 @@
 local M = {}
 
 ---Parse headers
----@param headers string[]
+---@param headers table
 ---@return string
 local parse_headers = function(headers)
 	local parsed = ""
@@ -26,10 +26,10 @@ end
 ---	},
 ---})
 ---@param url string
----@param opts { method: string, headers: string[], body: table }|nil
+---@param opts { method: string|nil, headers: table|nil, body: table|nil }|nil
 ---@return { response: table|nil, err: string|nil }
 M.fetch = function(url, opts)
-	local method = "-X GET"
+	local method = " -X GET"
 	local headers = ""
 	local body = ""
 
@@ -55,7 +55,13 @@ M.fetch = function(url, opts)
 		return { err = "response read failed" }
 	end
 
-	local decoded_data = vim.json.decode(data)
+	local success, decoded_data = pcall(vim.json.decode, data)
+
+	if not success then
+		print("Error decoding JSON: " .. decoded_data)
+		return { err = "JSON decoding failed" }
+	end
+
 	if not decoded_data then
 		print("Error decoding JSON response. " .. "\nResponse: " .. data)
 		return { err = "JSON decoding failed" }
