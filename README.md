@@ -4,7 +4,7 @@
 
 ## Features
 
-* **`fetch` function:**  Performs HTTP requests and returns the response data as a Lua table.
+* **`fetch_json` function:**  Performs HTTP requests and returns the response data as a Lua table.
 * **Methods:** Supports all HTTP methods, including `GET`, `POST`, `PUT`, `DELETE`, and `PATCH` requests.
 
 ## Dependencies
@@ -31,7 +31,7 @@ Add `leonardo-luz/http.nvim` to your Neovim plugin manager.  For example, in you
 Require the plugin using either:
 
 * `local http = require('http')`
-* `local fetch = require('http').fetch`
+* `local fetch_json = require('http').fetch_json`
 
 ## Example
 
@@ -49,7 +49,7 @@ local function example()
 		username = "test",
     },
   }
-  local response = http.fetch(url, opts)
+  local response = http.fetch_json(url, opts)
 
   -- Process the response (response is a table)
   print(response)

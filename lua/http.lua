@@ -18,23 +18,10 @@ local parse_headers = function(headers)
 	return parsed
 end
 
----HTTP request
----
----Usage example:
----local http = require('http')
----local response = http.fetch("https://example.com/users", {
----	method = "POST",
----	headers = {
----		"Content-Type: application/json",
----	},
----	body = {
----		username = "test",
----	},
----})
 ---@param url string
 ---@param opts { method: string|nil, headers: table|nil, body: table|nil }|nil
----@return { response: table|nil, err: string|nil }
-M.fetch = function(url, opts)
+---@return { data: any, err: string|nil }
+local http_request = function(url, opts)
 	local method = " -X GET"
 	local headers = ""
 	local body = ""
@@ -67,7 +54,33 @@ M.fetch = function(url, opts)
 		return { err = "response read failed" }
 	end
 
-	local success, decoded_data = pcall(vim.json.decode, data)
+	return { data = data }
+end
+
+---HTTP request
+---
+---Usage example:
+---local http = require('http')
+---local response = http.fetch("https://example.com/users", {
+---	method = "POST",
+---	headers = {
+---		"Content-Type: application/json",
+---	},
+---	body = {
+---		username = "test",
+---	},
+---})
+---@param url string
+---@param opts { method: string|nil, headers: table|nil, body: table|nil }|nil
+---@return { response: table|nil, err: string|nil }
+M.fetch_json = function(url, opts)
+	local request = http_request(url, opts)
+
+	if request.err then
+		return { err = request.err }
+	end
+
+	local success, decoded_data = pcall(vim.json.decode, request.data)
 
 	if not success then
 		print("Error decoding JSON: " .. decoded_data)
@@ -75,7 +88,7 @@ M.fetch = function(url, opts)
 	end
 
 	if not decoded_data then
-		print("Error decoding JSON response. " .. "\nResponse: " .. data)
+		print("Error decoding JSON response. " .. "\nResponse: " .. request.data)
 		return { err = "JSON decoding failed" }
 	end
 
@@ -84,6 +97,16 @@ M.fetch = function(url, opts)
 	end
 
 	return { response = decoded_data }
+end
+
+M.fetch_html = function(url, opts)
+	local request = http_request(url, opts)
+
+	if request.err then
+		return { err = request.err }
+	end
+
+	return { response = request.data }
 end
 
 ---setup http plugin
