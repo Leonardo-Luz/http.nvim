@@ -100,7 +100,22 @@ M.fetch_json = function(url, opts)
 end
 
 M.fetch_html = function(url, opts)
-	local request = http_request(url, opts)
+	opts = opts or {}
+
+	local headers = {}
+
+	table.insert(headers, "Accept: text/html")
+
+	if opts.headers then
+		for i = 1, #opts.headers do
+			table.insert(headers, opts.headers[i])
+		end
+	end
+
+	local request = http_request(url, {
+		headers = headers,
+		body = opts.body or nil,
+	})
 
 	if request.err then
 		return { err = request.err }
